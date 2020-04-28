@@ -58,3 +58,6 @@ t1=std::move(t3); // program will crash here since it can’t just “drop” a 
 ## sharing data between threads
 
 concept of **invariants**, double linked list example -> race condition
+
+
+using `lock_guard` instead of `mutex.lock()` since it ensures the unlock was called during de-construction/exception.
