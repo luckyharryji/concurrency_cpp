@@ -61,3 +61,8 @@ concept of **invariants**, double linked list example -> race condition
 
 
 using `lock_guard` instead of `mutex.lock()` since it ensures the unlock was called during de-construction/exception.
+
+Todo: function return pointer/reference? which means the mutex will be invalid since it pass the access to the client?
+
+Need to mark **all** the pieces of code that access the data structure as mutually exclusive: developer's responsibility
+-> Don’t pass pointers and references to protected data outside the scope of the lock, whether by returning them from a function, storing them in externally visible memory, or passing them as arguments to user-supplied functions. `?? what about database rows?`
