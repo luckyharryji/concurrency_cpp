@@ -70,7 +70,7 @@ int main() {
     }
     while (!testStack.empty()) {
         auto value = testStack.pop();
-        std::cout << *value.get() << std::endl;
+        std::cout << *value << std::endl; // shared_ptr.get() access to raw pointer
     }
     return 0;
 }
