@@ -66,3 +66,8 @@ Todo: function return pointer/reference? which means the mutex will be invalid s
 
 Need to mark **all** the pieces of code that access the data structure as mutually exclusive: developer's responsibility
 -> Don’t pass pointers and references to protected data outside the scope of the lock, whether by returning them from a function, storing them in externally visible memory, or passing them as arguments to user-supplied functions. `?? what about database rows?`
+
+
+## spotting race condition with interface
+
+example: c++ `stack`. The memeory allocation from heap can fail and throw exception, so if `pop()` function remove top element from stack and then return the value to the caller, the data could be dropped since memeory allocation exception happens after `remove data from stack` operation. So cpp choose to have both `top()` and `pop()` function to do this action.
