@@ -71,3 +71,43 @@ Need to mark **all** the pieces of code that access the data structure as mutual
 ## spotting race condition with interface
 
 example: c++ `stack`. The memeory allocation from heap can fail and throw exception, so if `pop()` function remove top element from stack and then return the value to the caller, the data could be dropped since memeory allocation exception happens after `remove data from stack` operation. So cpp choose to have both `top()` and `pop()` function to do this action.
+
+few options to handle this case:
+
+- PASS IN A REFERENCE
+- REQUIRE A NO-THROW COPY CONSTRUCTOR OR MOVE CONSTRUCTOR
+- RETURN A POINTER TO THE POPPED ITEM (?? how to gurarntee the access from different threads?)
+
+a combination of option 1 and 2/3 is normal
+
+
+## handling deadlock
+
+use `std::lock()` to lock multiple mutex at the same time, pass mutex ownership to lock_guard with `std::adopt_lock`
+
+`std::lock()` provides lock all or nothing for these 2 mutex instance.
+
+
+```cpp
+    void swap(X& lhs, X& rhs) {
+        // check it's different instance because attempting to acquire a lock on a std::mutex when you already hold it is undefined behavior
+        if (&lhs==&rhs) {
+            return;
+        }
+        std::lock(lhs.m,rhs.m);
+        std::lock_guard<std::mutex> lock_a(lhs.m,std::adopt_lock);
+        std::lock_guard<std::mutex> lock_b(rhs.m,std::adopt_lock);
+        swap(lhs.data,rhs.data);
+    }
+```
+
+
+general guideline:
+don’t wait for another thread if there’s a chance it’s waiting for you
+
+avoid calling user supplied code while handling lock
+
+ACQUIRE LOCKS IN A FIXED ORDER between threads:
+think about the double linked list case when multiple thread doing traversal / deleting nodes
+
+design a hierarchical mutex to represent this fixed order
