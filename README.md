@@ -111,3 +111,18 @@ ACQUIRE LOCKS IN A FIXED ORDER between threads:
 think about the double linked list case when multiple thread doing traversal / deleting nodes
 
 design a hierarchical mutex to represent this fixed order
+
+
+`std::unique_lock` provide more flexibility, it does not need to own lock of mutex all the time compared with `lock_guard`, but it has space&performance penalty. `std::defer_lock` will be used as possible argument to `unique_lock` constructor.
+
+```cpp
+    void swap(X& lhs, X& rhs) {
+        if (&lhs==&rhs) {
+            return;
+        }
+        std::unique_lock<std::mutex> lock_a(lhs.m,std::defer_lock);
+        std::unique_lock<std::mutex> lock_b(rhs.m,std::defer_lock);
+        std::lock(lock_a, lock_b);
+        swap(lhs.data, rhs.data);
+    }
+```
