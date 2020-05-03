@@ -1,7 +1,7 @@
 # concurrency_cpp
 
 
-##  basics
+## basics
 - ```join()``` when exception happens
     - simple: do join() inside ```catch(...)```
     - design pattern of : RAII. join() for joinable object in deconstructor.
@@ -18,6 +18,8 @@ void oops(int some_param) {
     t.detach();
 }
 ```
+
+
 
 for this function, converting `buffer` to `std::string` could finish before function `opps()` returns, lead to undefined behavior.
 
@@ -112,6 +114,7 @@ think about the double linked list case when multiple thread doing traversal / d
 
 design a hierarchical mutex to represent this fixed order
 
+**?hierarchical mutex** implementation?
 
 `std::unique_lock` provide more flexibility, it does not need to own lock of mutex all the time compared with `lock_guard`, but it has space&performance penalty. `std::defer_lock` will be used as possible argument to `unique_lock` constructor.
 
@@ -126,3 +129,55 @@ design a hierarchical mutex to represent this fixed order
         swap(lhs.data, rhs.data);
     }
 ```
+
+## few tips except mutex
+
+**Protecting shared data during initialization**
+
+Bad example:
+```cpp
+void undefined_behaviour_with_double_checked_locking() {
+    if (!resource_ptr) {  // (1)
+        std::lock_guard<std::mutex> lk(resource_mutex);
+        if (!resource_ptr) {
+            resource_ptr.reset(new some_resource); // (2)
+        }
+    }
+    resource_ptr->do_something();
+}
+```
+
+there could be **data race condition?** between different threads when executing 1 and 2
+
+so, `std::call_once` and `std::once_flag` can be used to solve this problem. The function pass into the call_one will be complete by some thread (in a properly synchronized fashion) by the time `std::call_once` returns
+
+```cpp
+std::once_flag resource_ptr_flag;
+
+void initialization() {
+    resource_ptr.reset(new some_resource)
+}
+
+void main() {
+    std::call_once(resource_ptr_flag, initialization);
+    resource_ptr->do_something();
+}
+```
+
+in C++11, static variable initialization is thread-safe. So this static can be used an alternative to call_once.
+
+```cpp
+class some_class;
+
+some_class& getClassInstance() {
+    static some_class instance;
+    return instance;
+}
+```
+
+**protecting rarely updated data structure**
+
+Read-Write lock
+-> shared - exclusive mutex with `boost::shared_mutex`
+
+use of recursive mutex is not recommended!! change class data model/API to resolve.
