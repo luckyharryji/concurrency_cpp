@@ -181,3 +181,34 @@ Read-Write lock
 -> shared - exclusive mutex with `boost::shared_mutex`
 
 use of recursive mutex is not recommended!! change class data model/API to resolve.
+
+
+## synchornization between threads
+
+conditional variable, queue and unique lock
+
+```cpp
+
+std::mutex mutx;
+std::queue<data> dataQueue;
+std::condition_variable dataCond;
+void prepareData() {
+    while (stillModeData()) {
+        auto data = pullNewData();
+        std::lock_guard<std::mutex> lg(mutx);
+        dataQueue.push(data);
+        dataCond.notify_one();
+    }
+}
+
+void threadProcessing() {
+    while (true) {
+        std::unique<lock> lk(mutx);
+        dataCond.wait(lk, [] {return !dataQueue.empty();});
+        auto data = dataQueue.top();
+        lk.unlock();
+        dataQueue.pop();
+        process(data);
+    }
+}
+```
