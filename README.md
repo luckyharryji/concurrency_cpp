@@ -212,3 +212,24 @@ void threadProcessing() {
     }
 }
 ```
+
+The synchornization handling can be pushed to the **ThreadSafeQueue** design??
+
+
+## future
+
+future&shared_future object is not thread-safe??
+
+using async to fille the future.
+
+```cpp
+int someF();
+
+std::future<int> futureValue = std::async(someF);
+XXX;
+auto result = futureValue.get();
+```
+
+pass in `std::launch::defered` or `std::launch::async` can control when will the async function be invoked
+
+packaged_task is higher-level abstraction over `std::promise`
