@@ -232,4 +232,26 @@ auto result = futureValue.get();
 
 pass in `std::launch::defered` or `std::launch::async` can control when will the async function be invoked
 
-packaged_task is higher-level abstraction over `std::promise`
+use future:
+
+- packaged_task is higher-level abstraction over `std::promise`
+- `std::promise<T>` with setValue function
+
+
+exception: the result of exception will be stored into future object and will be thrown whent the get() function was invoked
+
+
+`std::future` is only moveable, use `shared_future` when multiple threads need to wait for one event. **Attention**, member function of shared_future is not thread safe, so suggested to have own copy in each thread
+
+construction of `shared_future` come from future and look like this:
+
+```cpp
+std::promise<std::string> p;
+std::shared_future<std::string> sf(p.get_future());
+```
+
+---
+
+future can be passed around between threads, forming dependency of result -> functional programming in concurrency environment
+
+ATM example, state machine, actor model
