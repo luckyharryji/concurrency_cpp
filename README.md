@@ -255,3 +255,8 @@ std::shared_future<std::string> sf(p.get_future());
 future can be passed around between threads, forming dependency of result -> functional programming in concurrency environment
 
 ATM example, state machine, actor model
+
+
+# atomic operation and memory model
+
+`std::atomic_flag` is lock free object, it'ps a boolean, and can be used as buildinng blocks for other atomic operation and lock
