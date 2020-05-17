@@ -4,6 +4,7 @@
 #include<thread>
 #include<vector>
 #include<iostream>
+#include<queue>
 
 struct empty_stack_exp : std::exception {
     const char* what() const noexcept override {
@@ -55,6 +56,23 @@ class ThreadSafeStack {
         bool empty() const {
             std::lock_guard<std::mutex> lg(mtx_);
             return data_.empty();
+        }
+};
+
+template<typename T>
+class ThreadSafeQueue {
+    private:
+        mutable std::mutex mutx_;
+        std::queue<T> dataQueue_;
+        std::condition_variable dataCond_;
+
+    public:
+        ThreadSafeQueue() {}
+
+        void push(T newValue) {
+            std::lock_guard<std::mutex> lk(mutx_);
+            dataQueue_.push(newValue);
+            dataCond_.notify_one();
         }
 };
 
