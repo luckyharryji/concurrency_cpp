@@ -59,23 +59,6 @@ class ThreadSafeStack {
         }
 };
 
-template<typename T>
-class ThreadSafeQueue {
-    private:
-        mutable std::mutex mutx_;
-        std::queue<T> dataQueue_;
-        std::condition_variable dataCond_;
-
-    public:
-        ThreadSafeQueue() {}
-
-        void push(T newValue) {
-            std::lock_guard<std::mutex> lk(mutx_);
-            dataQueue_.push(newValue);
-            dataCond_.notify_one();
-        }
-};
-
 int main() {
     ThreadSafeStack<std::string> testStack;
     std::vector<std::thread> threadList;

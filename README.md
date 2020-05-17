@@ -260,3 +260,11 @@ ATM example, state machine, actor model
 # atomic operation and memory model
 
 `std::atomic_flag` is lock free object, it'ps a boolean, and can be used as buildinng blocks for other atomic operation and lock
+
+
+# lock based concurrency data stucture
+
+exception can happen inside the thread that was awaken, and no other thread will be awaken
+- call notify_one() during catch exception
+- call notify_all() when push/trigger mofication
+- put pointer directly into the data structure
